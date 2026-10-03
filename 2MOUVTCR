@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#eaf8fc" />
+    <title>Menelaus｜つながる、見つかる、毎日が広がる</title>
+    <meta name="description" content="友だちとの会話、みんなの発見、専門情報をひとつにつなぐコミュニティアプリ。" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="/assets/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Menelaus" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="auth-gate" class="auth-gate">
+      <section class="auth-card card-surface">
+        <div class="auth-brand"><img class="mascot-avatar auth-mascot" src="/assets/menelaus-mascot.png" alt="Menelausの公式キャラクター" /><div><p class="small-kicker">つながる発見ノート</p><h1>Menelaus</h1></div></div>
+        <p class="auth-mascot-greeting">こんにちは！いっしょに発見を楽しもう。</p>
+        <p class="auth-welcome">好きなことから、世界が広がる。</p>
+        <div class="auth-tabs" role="tablist" aria-label="ログインと新規登録">
+          <button class="auth-tab active" type="button" data-auth-mode="login">ログイン</button>
+          <button class="auth-tab" type="button" data-auth-mode="register">新しくはじめる</button>
+        </div>
+        <form id="auth-form" class="auth-form">
+          <label id="display-name-wrap" hidden>表示名<input id="display-name" maxlength="24" autocomplete="nickname" placeholder="呼ばれたい名前" /></label>
+          <label>会員番号<input id="auth-code" inputmode="numeric" autocomplete="username" placeholder="新規登録時は不要です" /></label>
+          <label>パスワード<input id="auth-password" type="password" minlength="10" maxlength="128" autocomplete="current-password" placeholder="10文字以上" required /></label>
+          <button id="auth-submit" class="primary-button" type="submit">ログイン</button>
+        </form>
+        <p id="auth-notice" class="form-notice" role="status"></p>
+        <p class="privacy-note">記録の公開範囲は自分で選べます。登録した記録と会員情報はこのアプリのデータベースに保存されます。</p>
+      </section>
+    </div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#" aria-label="Menelaus ホーム"><img class="mascot-avatar wordmark-mascot" src="/assets/menelaus-mascot.png" alt="" /> Menelaus</a>
+        <div class="topbar-actions">
+          <span id="account-label" class="account-label"></span>
+          <div class="avatar-control">
+            <button id="user-avatar-button" class="user-avatar-button" type="button" aria-label="プロフィールアイコンを選ぶ" aria-expanded="false">🌱</button>
+            <div id="avatar-menu" class="avatar-menu" role="group" aria-label="プロフィールアイコン" hidden>
+              <button type="button" data-avatar="🌱" aria-label="芽">🌱</button>
+              <button type="button" data-avatar="🌸" aria-label="花">🌸</button>
+              <button type="button" data-avatar="🐬" aria-label="イルカ">🐬</button>
+              <button type="button" data-avatar="🐚" aria-label="貝">🐚</button>
+              <button type="button" data-avatar="🦋" aria-label="ちょう">🦋</button>
+              <button type="button" data-avatar="🐈" aria-label="ねこ">🐈</button>
+              <button type="button" data-avatar="🦊" aria-label="きつね">🦊</button>
+              <button type="button" data-avatar="🐼" aria-label="パンダ">🐼</button>
+              <button type="button" data-avatar="🦉" aria-label="ふくろう">🦉</button>
+              <button type="button" data-avatar="⭐" aria-label="星">⭐</button>
+              <button type="button" data-avatar="🌈" aria-label="虹">🌈</button>
+              <button type="button" data-avatar="🍮" aria-label="プリン">🍮</button>
+            </div>
+          </div>
+          <button id="member-code" class="member-code" type="button" title="クリックして会員番号をコピー"></button>
+          <button id="logout-button" class="quiet-button" type="button">ログアウト</button>
+        </div>
+      </header>
+      <main class="app-content">
+        <section class="hero-panel card-glass">
+          <div class="hero-copy">
+            <p class="small-kicker">MENELAUS · つながる発見ノート</p>
+            <h1>好きなことから、<br />世界が広がる。</h1>
+            <p>友だちと話す。気になることを調べる。毎日の発見を、みんなと分かち合う。</p>
+            <button class="primary-button" data-target="map" type="button">地図をひらく <span>→</span></button>
+          </div>
+          <div class="hero-art"><img class="hero-mascot" src="/assets/menelaus-mascot.png" alt="海の仲間のMenelaus公式キャラクター" /><span aria-hidden="true">🫧</span></div>
+          <div class="hero-chips"><span>つながる</span><span>見つける</span><span>記録する</span></div>
+        </section>
+
+        <nav class="app-tabs" aria-label="メインメニュー">
+          <button class="tab-button active" data-target="home">ホーム</button>
+          <button class="tab-button" data-target="community">交流</button>
+          <button class="tab-button" data-target="map">地図</button>
+          <button class="tab-button" data-target="species">生きもの</button>
+          <button class="tab-button" data-target="sea">天気・海</button>
+          <button class="tab-button" data-target="news">ニュース</button>
+          <button class="tab-button" data-target="records">記録・交流</button>
+        </nav>
+
+        <section class="screen active" data-screen="home">
+          <div class="section-head"><div><p class="eyebrow">きょうのMenelaus</p><h2>きょうのホーム</h2></div><span id="updated-time" class="muted-label">公開情報を読み込みます</span></div>
+          <div id="dashboard-shortcuts" class="dashboard-shortcuts"></div>
+          <details class="feature-shelf play-shelf">
+            <summary>ひと息ついて遊ぼう <span>20</span></summary>
+            <p class="play-intro">アイヌ語を学んだり、座標で絵を描いたりして、遊びながら学びましょう。</p>
+            <div id="features-play" class="feature-links"></div>
+          </details>
+          <div class="home-grid">
+            <article class="card-surface home-card">
+              <div class="card-heading"><div><p class="eyebrow">近くの天気</p><h3 id="home-weather-title">近くの天気と海</h3></div><span class="card-icon">🌤️</span></div>
+              <div id="home-weather" class="weather-summary"><p>最新の風・波・気温を公開データから取得します。</p></div>
+              <label class="home-location">全国の予報地点<select id="home-place"></select></label>
+              <button class="text-link" data-target="sea" type="button">天気・風・波の詳しい予報 →</button>
+            </article>
+            <article class="card-surface home-card">
+              <div class="card-heading"><div><p class="eyebrow">最近の発見</p><h3>みんなの新しい記録</h3></div><span class="card-icon">🔎</span></div>
+              <div id="home-records" class="recent-records"><p>公開された観察記録はまだありません。</p></div>
+              <button class="text-link" data-target="records" type="button">観察を記録する →</button>
+            </article>
+            <article class="card-surface home-card news-teaser">
+              <div class="card-heading"><div><p class="eyebrow">新着のお知らせ</p><h3>新しいお知らせ</h3></div><span class="card-icon">📰</span></div>
+              <div id="home-news" class="recent-records"><p>公開ニュースを読み込みます。</p></div>
+              <button class="text-link" data-target="news" type="button">ニュースをもっと見る →</button>
+            </article>
+          </div>
+          <div class="notice-strip"><img class="notice-mascot" src="/assets/menelaus-mascot.png" alt="" /><p><strong>Menelausへようこそ</strong> 日々の会話も、地図での発見も、専門的な調べものも。気になった機能から気軽に使ってください。</p></div>
+          <details class="feature-shelf"><summary>ホームの便利機能 <span>10</span></summary><div id="features-home" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="map">
+          <div class="section-head"><div><p class="eyebrow">地図をひらく</p><h2>地図と分布</h2></div><span class="muted-label">地図を動かして好きな場所を選べます</span></div>
+          <div class="map-toolbar card-surface">
+            <label class="select-label">全国の地域から選ぶ<select id="island-select"></select></label>
+            <label class="check-label"><input id="show-observations" type="checkbox" checked />公開された記録を表示</label>
+            <button id="locate-button" class="soft-control" type="button">現在地</button>
+          </div>
+          <section class="favorite-places card-surface" aria-labelledby="favorite-places-title">
+            <div class="favorite-places-heading"><div><p class="eyebrow">MY PLACES</p><h3 id="favorite-places-title">お気に入りの場所</h3></div><span class="small-print">この端末に保存</span></div>
+            <form id="save-favorite-form" class="favorite-save-form">
+              <label class="grow-label">選択中の場所に名前をつける<input id="favorite-place-name" type="text" maxlength="50" placeholder="例：いつもの海岸、次の旅行先" required /></label>
+              <button class="primary-button" type="submit">場所を保存</button>
+            </form>
+            <p class="small-print">地図をタップするか、地名・現在地を選んでから保存できます。場所と表示範囲をこのブラウザーに保存します。</p>
+            <div id="favorite-place-list" class="favorite-place-list" aria-live="polite"></div>
+          </section>
+          <div id="island-map" class="leaflet-map" role="application" aria-label="地図"></div>
+          <div class="map-legend"><span><i class="legend-island"></i>都道府県の中心</span><span><i class="legend-record"></i>観察記録</span><span><i class="legend-favorite"></i>お気に入り</span><span>地図：OpenStreetMap</span></div>
+          <p class="small-print">地図をタップすると検索地点を選べます。位置情報は許可を得たときだけ取得し、保存する記録の公開範囲も自分で選べます。</p>
+          <div id="map-island-detail" class="card-surface island-detail"></div>
+          <details class="feature-shelf"><summary>地図の便利機能 <span>10</span></summary><div id="features-map" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="species">
+          <div class="section-head"><div><p class="eyebrow">生きものを探す</p><h2>生きものを調べる</h2></div><span class="muted-label">世界の観察データベース</span></div>
+          <form id="species-search-form" class="search-panel card-surface">
+            <label>全国の検索地点<select id="species-island"></select></label>
+            <label class="grow-label species-query-wrap">生物名（カタカナ・学名）で探す<input id="species-query" maxlength="100" type="search" placeholder="例：カワセミ、アホウドリ、Alcedo atthis" /><span id="species-suggestions" class="species-suggestions" role="listbox" hidden></span></label>
+            <button class="primary-button" type="submit">生物を検索</button>
+          </form>
+          <div class="data-source-line"><span>GBIF 生物多様性公開データ</span><a href="https://www.gbif.org/" target="_blank" rel="noopener noreferrer">データについて ↗</a></div>
+          <div id="species-status" class="inline-status" role="status"></div>
+          <div id="species-list" class="species-list"></div>
+          <details class="feature-shelf"><summary>生きもの検索の便利機能 <span>10</span></summary><div id="features-species" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="sea">
+          <div class="section-head"><div><p class="eyebrow">全国の空と海</p><h2>天気・風・波</h2></div><span id="marine-updated" class="muted-label">公開予報</span></div>
+          <div class="sea-island-select card-surface"><label>全国の予報地点<select id="sea-island"></select></label><button id="refresh-marine" class="soft-control" type="button">最新情報に更新</button></div>
+          <div id="marine-error" class="inline-status" role="status"></div>
+          <div id="marine-cards" class="marine-cards"><div class="loading-card">気象・海洋データを取得しています…</div></div>
+          <div class="forecast-card card-surface"><div class="card-heading"><div><p class="eyebrow">24時間の予報</p><h3>これからの波</h3></div><span>予報値</span></div><div id="wave-forecast" class="wave-forecast"></div></div>
+          <div class="forecast-card card-surface"><div class="card-heading"><div><p class="eyebrow">3日間の見通し</p><h3>3日間の天気</h3></div></div><div id="daily-forecast" class="daily-forecast"></div></div>
+          <div class="ferry-card card-surface">
+            <div><p class="eyebrow">全国の防災情報</p><h3>気象庁の警報・注意報</h3><p>選択地点の予報とあわせて、全国の警報・注意報や台風・地震情報を公式ページでご確認ください。予報モデルは避難や運航の判断に代わるものではありません。</p></div>
+            <div class="ferry-links"><a href="https://www.jma.go.jp/bosai/" target="_blank" rel="noopener noreferrer">気象庁｜防災情報 ↗</a><a href="https://www.jma.go.jp/bosai/map.html#5/35.5/137/" target="_blank" rel="noopener noreferrer">全国の警報・注意報マップ ↗</a></div>
+          </div>
+          <p class="small-print">気象・波浪データ：Open-Meteo（予報モデル）。海から離れた地点では波の情報が取得できないことがあります。</p>
+          <details class="feature-shelf"><summary>天気と海の便利機能 <span>10</span></summary><div id="features-sea" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="news">
+          <div class="section-head"><div><p class="eyebrow">全国のニュース</p><h2>NHK 全国ニュース</h2></div><button id="refresh-news" class="soft-control" type="button">更新する ↻</button></div>
+          <p class="section-intro">NHKが公開する全国ニュースのRSSを表示します。速報・災害時は気象庁や自治体の公式情報もご確認ください。</p>
+          <div id="news-status" class="inline-status" role="status"></div>
+          <div id="news-list" class="news-list"></div>
+          <div class="official-links card-surface"><h3>全国の公式情報</h3><a href="https://www.jma.go.jp/bosai/" target="_blank" rel="noopener noreferrer">気象庁｜防災情報 ↗</a><a href="https://www.jma.go.jp/bosai/map.html#5/35.5/137/" target="_blank" rel="noopener noreferrer">気象庁｜全国の警報・注意報 ↗</a><a href="https://news.web.nhk/newsweb/" target="_blank" rel="noopener noreferrer">NHK｜全国ニュース ↗</a></div>
+          <details class="feature-shelf"><summary>ニュースの便利機能 <span>10</span></summary><div id="features-news" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="records">
+          <div class="section-head"><div><p class="eyebrow">観察と日々のメモ</p><h2>記録をつける</h2></div><span class="muted-label">記録はいつでも削除できます</span></div>
+          <form id="record-form" class="record-form card-surface">
+            <div class="form-row">
+              <label class="grow-label">見つけた生きもの<input id="record-species" maxlength="120" required placeholder="名前または、わからない場合は特徴" /></label>
+              <label>見つけた数<input id="record-count" type="number" min="1" max="10000" value="1" /></label>
+            </div>
+            <div class="form-row">
+              <label>場所・地域<input id="record-area" maxlength="80" placeholder="例：海岸、近所の公園" required /></label>
+              <label>見つけた日<input id="record-date" type="date" required /></label>
+            </div>
+            <div class="location-readout"><span>記録位置</span><strong id="record-coordinate">地図上で場所を選んでください</strong><button id="use-island-center" class="text-link" type="button">選んだ地点の中心を使う</button></div>
+            <label>様子・環境メモ<textarea id="record-notes" maxlength="600" rows="3" placeholder="場所や天気、生きものの特徴など"></textarea></label>
+            <label class="check-label"><input id="share-record" type="checkbox" />匿名の観察記録として、地域とおおよその場所をみんなに共有する</label>
+            <p class="small-print">共有する場合、記録位置は約1km単位に丸めて公開します。表示名は公開されません。観察以外のメモにも使えます。</p>
+            <button class="primary-button" type="submit">観察記録を保存</button>
+          </form>
+          <div class="section-head records-heading"><div><p class="eyebrow">自分のノート</p><h2>自分の記録</h2></div></div>
+          <div id="records-status" class="inline-status" role="status"></div>
+          <div id="record-list" class="record-list"></div>
+          <div class="section-head records-heading"><div><p class="eyebrow">みんなの地図</p><h2>みんなの分布記録</h2></div></div>
+          <div id="community-records" class="record-list"></div>
+          <details class="feature-shelf"><summary>記録の便利機能 <span>10</span></summary><div id="features-records" class="feature-links"></div></details>
+        </section>
+
+        <section class="screen" data-screen="community">
+          <div class="section-head"><div><p class="eyebrow">みんなとつながる</p><h2>発見をシェア</h2></div></div>
+          <div class="community-tools card-surface">
+            <form id="friend-form" class="friend-form"><label>会員番号で友だちを追加<input id="friend-code" inputmode="numeric" maxlength="6" placeholder="6桁の会員番号" required /></label><button class="soft-control" type="submit">つながる</button></form>
+            <div id="friend-status" class="inline-status" role="status"></div>
+            <div id="friend-list" class="friend-list"></div>
+            <div class="chat-box"><div class="chat-box-heading"><h3 id="chat-title">友だちを選んで会話しよう</h3><span id="chat-polling" class="muted-label" role="status"></span></div><div id="chat-messages" class="chat-messages"></div><form id="chat-form" class="chat-form"><input id="chat-input" maxlength="2000" placeholder="メッセージを入力" required /><button class="primary-button" type="submit">送信</button></form></div>
+          </div>
+          <form id="post-form" class="composer card-surface"><textarea id="post-content" maxlength="1200" rows="3" placeholder="最近の発見や、誰かに伝えたいことを共有しよう" required></textarea><button class="primary-button" type="submit">投稿する</button></form>
+          <div id="post-status" class="inline-status" role="status"></div>
+          <div id="community-feed" class="community-feed"></div>
+          <details class="feature-shelf"><summary>交流の便利機能 <span>10</span></summary><div id="features-community" class="feature-links"></div></details>
+        </section>
+      </main>
+      <nav class="bottom-nav" aria-label="下部メニュー">
+        <button class="nav-item active" data-target="home" type="button"><span>⌂</span>ホーム</button>
+        <button class="nav-item" data-target="community" type="button"><span>♡</span>交流</button>
+        <button class="nav-item" data-target="map" type="button"><span>◎</span>地図</button>
+        <button class="nav-item" data-target="species" type="button"><span>✿</span>生きもの</button>
+        <button class="nav-item" data-target="sea" type="button"><span>≋</span>天気・波</button>
+        <button class="nav-item" data-target="news" type="button"><span>▤</span>ニュース</button>
+        <button class="nav-item" data-target="records" type="button"><span>✎</span>記録</button>
+      </nav>
+    </div>
+    <dialog id="game-dialog" class="game-dialog" aria-labelledby="game-title">
+      <div class="game-card">
+        <div class="game-heading"><h2 id="game-title">お楽しみ</h2><button type="button" data-close-game aria-label="閉じる">×</button></div>
+        <div id="game-content" class="game-content"></div>
+      </div>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <button id="menelaus-guide-button" class="guide-fab" type="button" aria-label="Menelaus AIガイドをひらく">
+      <img src="/assets/menelaus-mascot.png" alt="" /><span>AIガイド</span>
+    </button>
+    <dialog id="menelaus-guide" class="guide-dialog" aria-labelledby="guide-title">
+      <section class="guide-card">
+        <header class="guide-heading">
+          <img src="/assets/menelaus-mascot.png" alt="" />
+          <div><h2 id="guide-title">Menelaus AIガイド</h2><p>無料・端末内で動作します</p></div>
+          <button type="button" data-close-guide aria-label="閉じる">×</button>
+        </header>
+        <div id="guide-messages" class="guide-messages" aria-live="polite">
+          <p class="guide-message assistant">こんにちは！アプリの使い方や、記録・天気・地図の場所をご案内します。</p>
+        </div>
+        <form id="guide-form" class="guide-form">
+          <input id="guide-input" maxlength="240" autocomplete="off" placeholder="例：観察記録をつけたい" required />
+          <button class="primary-button" type="submit">送信</button>
+        </form>
+        <p class="guide-disclaimer">このガイドは入力を外部へ送らない簡易案内です。生成AIの回答や専門的な助言ではありません。</p>
+      </section>
+    </dialog>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
+  </body>
+</html>
